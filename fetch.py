@@ -8,6 +8,7 @@ import time
 
 import requests
 
+import options
 import parsers
 
 
@@ -16,11 +17,13 @@ files = {
         'url': "https://aro.lfv.se/Links/Link/ViewLink?TorLinkId=300&type=MET",
         'age': 18000,
         'parse_fun': parsers.parse_aro,
+        'type': 'METAR',
     },
     "taf_norden.html": {
         'url': "https://aro.lfv.se/Links/Link/ViewLink?TorLinkId=304&type=MET",
         'age': 18000,
         'parse_fun': parsers.parse_aro,
+        'type': 'TAF',
     },
 }
 
@@ -36,9 +39,10 @@ def file_is_current(filename, age=604800):
         return False
 
 
-def get_html(url, filename, age=604800):
-    if file_is_current(filename, age=age):
-        print(f'Already have current {filename}')
+def get_html(url, filename, opts):
+    if file_is_current(filename, age=opts.age):
+        if opts.verbose:
+            print(f'Already have current {filename}')
         with open(filename) as htmlfile:
             html = htmlfile.read()
     else:
@@ -64,16 +68,18 @@ def get_dayname():
 
 
 if __name__ == '__main__':
+    opts = options.get_options()
+
     for filename, fdata in files.items():
         url = fdata['url']
         age = fdata['age']
-        fdata['data'] = get_html(url, filename, age)
+        fdata['data'] = get_html(url, filename, opts)
         fdata['stations'] = fdata['parse_fun'](fdata['data'])
 
     for filename, fdata in files.items():
-        print(filename)
         stations = fdata['stations']
-        for k in sorted(stations.keys()):
-            print(f'{k}: {stations[k]}')
+        if opts.verbose:
+            for k in sorted(stations.keys()):
+                print(f'{k}: {stations[k]}')
 
-    print(get_dayname())
+        print(f'{opts.station} {fdata['type']}: {stations.get(opts.station)}')
