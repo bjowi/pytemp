@@ -42,7 +42,9 @@ def main():
 
         url = fdata['url']
         age = fdata['age']
-        fdata['data'] = utils.get_html(url, opts.cachedir / filename, opts)
+        if not age:
+            age = opts.age
+        fdata['data'] = utils.get_html(url, opts.cachedir / filename, age, opts.verbose)
         match fdata['type']:
             case 'METAR':
                 fdata['stations'] = fdata['parse_fun'](fdata['data'])

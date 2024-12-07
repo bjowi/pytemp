@@ -20,14 +20,15 @@ def file_is_current(filename, age=604800):
         return False
 
 
-def get_html(url, filename, opts):
-    if file_is_current(filename, age=opts.age):
-        if opts.verbose:
+def get_html(url, filename, age, verbose=False):
+    if file_is_current(filename, age=age):
+        if verbose:
             print(f'Already have current {filename}')
         with open(filename) as htmlfile:
             html = htmlfile.read()
     else:
-        print(f'Fetching new html from {url}')
+        if verbose:
+            print(f'Fetching new html from {url}')
         rd = requests.get(url,
                           headers={
                               'Accept-Language': 'en-US',
