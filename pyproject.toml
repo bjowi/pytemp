@@ -19,3 +19,6 @@ include = ["src/weather"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/weather"]
+
+[project.scripts]
+weather-cli = "weather:main"

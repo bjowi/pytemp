@@ -8,8 +8,8 @@ import time
 
 import requests
 
-import options
-import parsers
+from . import options
+from . import parsers
 
 
 files = {
@@ -67,7 +67,7 @@ def get_dayname():
     return calendar.day_abbr[weekday]
 
 
-if __name__ == '__main__':
+def main():
     opts = options.get_options()
 
     for filename, fdata in files.items():
