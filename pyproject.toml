@@ -11,4 +11,11 @@ dependencies = [
 requires-python = ">= 3"
 description = "Fetch weather data"
 
-[tool]
+[tool.hatch.version]
+path = "src/weather/__main__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/weather"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/weather"]
