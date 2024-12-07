@@ -1,11 +1,14 @@
 [build-system]
-requires = ["flit_core >= 3.4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-name = "fetchmetar"
+name = "weather"
 dynamic = ["version"]
 dependencies = [
   "requests",
 ]
-requres-python = ">= 3"
+requires-python = ">= 3"
+description = "Fetch weather data"
+
+[tool]
