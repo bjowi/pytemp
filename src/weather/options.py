@@ -1,9 +1,15 @@
 import argparse
 import os
+import pathlib
 
 
 def get_options():
-    home = os.environ.get('HOME', '')
+    xdg_cache = os.environ.get('XDG_CACHE_HOME')
+    if xdg_cache:
+        cache_path = pathlib.Path(xdg_cache) / 'bweather'
+    else:
+        home = os.environ.get('HOME', '')
+        cache_path = pathlib.Path(home) / '.cache' / 'bweather'
 
     parser = argparse.ArgumentParser(
         prog='weather',
@@ -18,7 +24,7 @@ def get_options():
                         type=str, required=True,
                         help="ICAO airport code")
     parser.add_argument('--cachedir',
-                        type=str, default=f'{home}/.cache',
+                        type=str, default=cache_path,
                         help="Directory for downloaded files")
     parser.add_argument('--age', type=int, default=604800,
                         help="Wait this long before fetching data again")

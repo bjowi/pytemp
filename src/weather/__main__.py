@@ -1,12 +1,15 @@
 VERSION = "0.1"
 
-from .fetch import main
+import sys
+import traceback
+
+import fetch
 
 ret = 1
 try:
-    ret = main()
+    ret = fetch.main()
 except Exception as e:
-    print(f"Error: {str(e)}")
+    traceback.print_exc()
 
 sys.exit(ret)
 
