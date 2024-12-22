@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import json
 import locale
 import os
 import time
@@ -7,6 +8,7 @@ import time
 import requests
 
 import constants
+import stations
 
 
 def file_is_current(filename, age=604800):
@@ -45,8 +47,8 @@ def get_html(url, filename, age, verbose=False):
 def translate_station(station):
     if station in constants.icao_to_station_name:
         return constants.icao_to_station_name[station]
-    elif station in constants.smhi_key_to_station_name:
-        return constants.smhi_key_to_station_name[station]
+    elif station in stations.smhi_name_to_station:
+        return stations.smhi_name_to_station[station]['key']
     else:
         return station
 
@@ -56,3 +58,17 @@ def get_dayname():
     now = datetime.datetime.now()
     weekday = calendar.weekday(now.year, now.month, now.day)
     return calendar.day_abbr[weekday]
+
+
+def gen_station_map(filename):
+    smhi_name_to_station = {}
+    smhi_key_to_station = {}
+    with open(filename, 'r') as f:
+        data = json.load(f)
+        for station in data['station']:
+            smhi_key_to_station[station['key']] = station
+            smhi_name_to_station[station['name']] = station
+
+    with open('stations.py', 'w') as f:
+        f.write(f'smhi_name_to_station = {smhi_name_to_station}\n')
+        f.write(f'smhi_key_to_station = {smhi_key_to_station}\n')

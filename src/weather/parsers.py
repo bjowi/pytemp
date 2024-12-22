@@ -18,12 +18,23 @@ def parse_aro(html):
 
     return stations
 
-def parse_smhi(html):
+
+def parse_smhi_multi(html):
     data = json.loads(html)
     res = {}
     for station in data.get('station', []):
-        value = station.get('value')
-        if value:
+        value = data.get('value')
+        if value and station:
             res[station['name']] = value[0]['value']
+
+    return res
+
+def parse_smhi(html):
+    data = json.loads(html)
+    res = {}
+    station = data.get('station')
+    value = data.get('value')
+    if value and station:
+        res[station['name']] = value[0]['value']
 
     return res

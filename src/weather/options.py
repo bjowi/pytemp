@@ -19,7 +19,7 @@ def get_options():
 
     parser.add_argument('-v', '--verbose',
                         action='store_true',
-                        help="Print extra debigging information")
+                        help="Print extra debugging information")
     parser.add_argument('-s', '--station',
                         type=str, required=True,
                         help="ICAO airport code")
@@ -28,6 +28,10 @@ def get_options():
                         help="Directory for downloaded files")
     parser.add_argument('--age', type=int, default=604800,
                         help="Wait this long before fetching data again")
+    parser.add_argument('--gen-stations',
+                        action='store_true',
+                        help="Generate station name-id map")
+
     return parser.parse_args()
 
 

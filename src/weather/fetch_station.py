@@ -2,26 +2,21 @@
 
 import options
 import parsers
+import smhi
 import utils
 
 
 files = {
-    "metar_norden.html": {
-        'disabled': True,
-        'url': "https://aro.lfv.se/Links/Link/ViewLink?TorLinkId=300&type=MET",
-        'age': 18000,
-        'parse_fun': parsers.parse_aro,
-        'type': 'METAR',
-    },
-    "taf_norden.html": {
-        'disabled': True,
-        'url': "https://aro.lfv.se/Links/Link/ViewLink?TorLinkId=304&type=MET",
-        'age': 18000,
-        'parse_fun': parsers.parse_aro,
-        'type': 'TAF',
-    },
     "malmen_temp.json": {
-        'url': "https://opendata-download-metobs.smhi.se/api/version/latest/parameter/1/station-set/all/period/latest-hour/data.json",
+        'url': smhi.get_smhi_url,
+        'parameter': 1,
+        'age': 3600,
+        'parse_fun': parsers.parse_smhi,
+        'type': 'SMHI',
+    },
+    "malmen_weather.json": {
+        'url': smhi.get_smhi_url,
+        'parameter': 13,
         'age': 3600,
         'parse_fun': parsers.parse_smhi,
         'type': 'SMHI',
@@ -35,6 +30,7 @@ def main():
     opts.cachedir.mkdir(parents=True, exist_ok=True)
 
     if opts.gen_stations:
+        utils.gen_station_map(opts.cachedir / "malmen_temp.json")
         return 0
 
     station = utils.translate_station(opts.station)
@@ -43,7 +39,7 @@ def main():
         if fdata.get('disabled'):
             continue
 
-        url = fdata['url']
+        url = fdata['url'](opts.station, fdata['parameter'])
         age = fdata['age']
         if not age:
             age = opts.age
@@ -56,7 +52,7 @@ def main():
             case 'SMHI':
                 fdata['stations'] = fdata['parse_fun'](fdata['data'])
 
-    tempsd = {}
+    outputs = []
     for filename, fdata in files.items():
         if fdata.get('disabled'):
             continue
@@ -74,6 +70,7 @@ def main():
                     temp, dewpoint = metar.split(' ')[-2].replace('M', '-').split('/')
                     print(temp, dewpoint)
             case 'SMHI':
-                print(f"{stations.get(opts.station)}")
+                outputs.append(f"{stations.get(opts.station)}")
 
+    print(' '.join(outputs))
     return 0
