@@ -7,19 +7,11 @@ import utils
 
 
 files = {
-    "malmen_temp.json": {
-        'url': smhi.get_smhi_url,
+    'temp.json': {
         'parameter': 1,
-        'age': 3600,
-        'parse_fun': parsers.parse_smhi,
-        'type': 'SMHI',
     },
-    "malmen_weather.json": {
-        'url': smhi.get_smhi_url,
+    'weather.json': {
         'parameter': 13,
-        'age': 3600,
-        'parse_fun': parsers.parse_smhi,
-        'type': 'SMHI',
     },
 }
 
@@ -30,47 +22,56 @@ def main():
     opts.cachedir.mkdir(parents=True, exist_ok=True)
 
     if opts.gen_stations:
-        utils.gen_station_map(opts.cachedir / "malmen_temp.json")
+        utils.gen_station_map(opts.cachedir / 'stations.json')
+        return 0
+
+    if opts.list_stations:
+        for s in utils.get_stations():
+            print(s)
         return 0
 
     station = utils.translate_station(opts.station)
 
-    for filename, fdata in files.items():
+    for param_name, fdata in files.items():
         if fdata.get('disabled'):
             continue
 
-        url = fdata['url'](opts.station, fdata['parameter'])
-        age = fdata['age']
-        if not age:
-            age = opts.age
-        fdata['data'] = utils.get_html(url, opts.cachedir / filename, age, opts.verbose)
-        match fdata['type']:
-            case 'METAR':
-                fdata['stations'] = fdata['parse_fun'](fdata['data'])
-            case 'TAF':
-                fdata['stations'] = fdata['parse_fun'](fdata['data'])
-            case 'SMHI':
-                fdata['stations'] = fdata['parse_fun'](fdata['data'])
+        filename = opts.cachedir / f'{station}-{param_name}'
+        fdata['filename'] = filename
+
+        url = smhi.get_smhi_url(opts.station, fdata['parameter'])
+        fdata['data'] = utils.get_html(url, filename, opts.age, opts.verbose)
+        fdata['stations'] = parsers.parse_smhi(fdata['data'])
 
     outputs = []
-    for filename, fdata in files.items():
+    for param_name, fdata in files.items():
         if fdata.get('disabled'):
             continue
 
+        filename = fdata['filename']
         stations = fdata['stations']
         if opts.verbose:
             for k in sorted(stations.keys()):
                 print(f"{k}: {stations[k]}")
 
-        match fdata['type']:
-            case 'METAR':
-                metar = stations.get(station)
-                if metar:
-                    # this works for malmen. the formats are otherwise inconsistent
-                    temp, dewpoint = metar.split(' ')[-2].replace('M', '-').split('/')
-                    print(temp, dewpoint)
-            case 'SMHI':
-                outputs.append(f"{stations.get(opts.station)}")
+        data = stations.get(opts.station)
+        parameter = fdata['parameter']
+
+        match parameter:
+            case 13:
+                if opts.describe_weather:
+                    weather = utils.get_weather_description(int(data))
+                    if weather:
+                        outputs.append(weather)
+                    else:
+                        print(f"Weather type {data} not found")
+                        return 2
+                else:
+                    outputs.append(f"{data}")
+            case 1:
+                outputs.append(f"{data}°C")
+            case _:
+                outputs.append(f"{data}")
 
     print(' '.join(outputs))
     return 0

@@ -22,6 +22,14 @@ def file_is_current(filename, age=604800):
         return False
 
 
+def get_stations():
+    return stations.smhi_name_to_station.keys()
+
+
+def get_weather_description(code):
+    return constants.smhi_weather_codes.get(code)
+
+
 def get_html(url, filename, age, verbose=False):
     if file_is_current(filename, age=age):
         if verbose:
