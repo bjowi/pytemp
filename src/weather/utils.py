@@ -30,7 +30,13 @@ def get_weather_description(code):
     return constants.smhi_weather_codes.get(code)
 
 
-def get_html(url, filename, age, verbose=False):
+def get_html(url, filename, age, params={}, headers=None, verbose=False):
+    if headers is None:
+        headers = {
+            'Accept-Language': 'en-US',
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0',
+        }
+
     if file_is_current(filename, age=age):
         if verbose:
             print(f'Already have current {filename}')
@@ -40,10 +46,8 @@ def get_html(url, filename, age, verbose=False):
         if verbose:
             print(f'Fetching new html from {url}')
         rd = requests.get(url,
-                          headers={
-                              'Accept-Language': 'en-US',
-                              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0'
-                          },
+                          headers=headers,
+                          params=params,
                           verify=True)
         html = rd.text
         with open(filename, 'w') as f:
