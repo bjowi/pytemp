@@ -3,6 +3,7 @@
 import options
 import parsers
 import utils
+import sys
 
 
 files = {
@@ -77,3 +78,7 @@ def main():
                 print(f"{stations.get(opts.station)}")
 
     return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

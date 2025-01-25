@@ -4,6 +4,7 @@ import options
 import parsers
 import smhi
 import utils
+import sys
 
 
 files = {
@@ -17,7 +18,7 @@ files = {
 
 
 def main():
-    opts = options.get_options()
+    opts = options.get_weather_options()
 
     opts.cachedir.mkdir(parents=True, exist_ok=True)
 
@@ -75,3 +76,7 @@ def main():
 
     print(' '.join(outputs))
     return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,4 +1,5 @@
 import enum
+import json
 import requests
 
 import tokens
@@ -33,11 +34,15 @@ nyt_sections = [
     'world',
 ]
 
-def fetch_topstories(section):
+def fetch_topstories(section, opts):
     uri = f'https://api.nytimes.com/svc/topstories/v2/{section}.json'
-    rd = utils.get_html(uri, f'{section}.html', 3600,
+    rd = utils.get_html(uri, opts.cachedir / f'{section}.html', 3600,
                         params={'api-key': tokens.api_key})
-    print(rd)
+    return json.loads(rd)
 
-if __name__ == '__main__':
-    fetch_topstories('world')
+
+def fetch_newswire(source, section, opts):
+    uri = f'https://api.nytimes.com/svc/news/v3/content/{source}/{section}.json'
+    rd = utils.get_html(uri, opts.cachedir / f'{source}-{section}.html', 3600,
+                        params={'api-key': tokens.api_key})
+    return json.loads(rd)
