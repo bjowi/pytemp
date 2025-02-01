@@ -24,7 +24,19 @@ def main():
             world = nyt.fetch_topstories(opts.section, opts).get('results')
             newswire = nyt.fetch_newswire(opts.source, opts.section, opts).get('results')
             topstory = sorted(world, key=datesort)[-1]
-            print(f"{topstory['title'][:100]}")
+            match opts.format:
+                case 'text':
+                    print(f"{topstory['title'][:100]}")
+                case 'yuck':
+                    headlines = []
+                    for story in world:
+                        headlines.append(f"(expander :name '{story['title']}'"
+                                         f"(box :orientation 'h'"
+                                         f"(label :halign 'start' :width 70 :wrap true :text '{story['abstract']}' :class 'headline')"
+                                         f"(button :class 'link' :onclick 'firefox {story['url']} && eww close news')))")
+
+                    news = (f"(box :orientation 'v' :class 'news' :space-evenly false {'\n'.join(headlines)})")
+                    print(news)
 
         return 0
     except Exception:

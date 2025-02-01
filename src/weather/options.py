@@ -55,9 +55,15 @@ def get_weather_options():
 def get_news_options():
     parser = argparse.ArgumentParser(
         prog='news',
-        description='Fetch enws headlines',
+        description='Fetch news headlines',
         epilog='',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('--format',
+                        type=str,
+                        required=False,
+                        default='text',
+                        help="output format, text or yuck")
 
     parser.add_argument('--site',
                         type=str,
