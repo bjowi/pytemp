@@ -2,6 +2,7 @@ import datetime
 import json
 import operator
 import sys
+import time
 import traceback
 
 import nyt
@@ -9,6 +10,8 @@ import options
 import utils
 
 from pprint import pprint
+
+from static import make_html
 
 
 def datesort(e):
@@ -27,6 +30,16 @@ def main():
             match opts.format:
                 case 'text':
                     print(f"{topstory['title'][:100]}")
+                case 'html':
+                    stories = []
+                    footer = f'<a href="https://developer.nytimes.com/"><img src="poweredby_nytimes_200a.png" /></a>'
+                    for story in world:
+                        #print(story)
+                        stories.append(f'<h1><a href="{story["url"]}">{story["title"][:200]}</a></h1>\n')
+                    print(make_html(title='News',
+                                    heading=f'News from <a href="https://www.nytimes.com/">The New York Times</a>, updated {time.ctime(time.time())}',
+                                    body='\n'.join(stories),
+                                    footer=footer))
                 case 'yuck':
                     headlines = []
                     for story in world:
